@@ -1,0 +1,237 @@
+{% include('adminAtas.html') %}
+<div class="konten">
+	<h2>Manage Siswa</h2>
+	<button id="btnForm">Form</button>
+
+	<div class="formNya" style="display: none;">
+		<label for="">Username</label><br />
+		<input type="text" name="username"><br /><br />
+		<label for="">Password</label><br />
+		<input type="text" name="password"><br /><br />
+		<label for="">NIS</label><br />
+		<input type="text" name="nis" style="width: 25%;"><br /><br />
+		<label for="">Nama</label><br />
+		<input type="text" name="nama"><br /><br />
+		<label for="">Jenis Kelamin</label><br />
+		<input id="lk" type="radio" name="jk" value="l" style="padding: auto;width: auto;"> <label
+			for="lk">Laki-Laki</label>
+		&nbsp;
+		<input id="pr" type="radio" name="jk" value="p" style="padding: auto;width: auto;"> <label
+			for="pr">Perempuan</label>
+		<br /><br />
+		<label for="">Alamat</label><br />
+		<textarea rows="3" name="alamat"></textarea><br /><br />
+		<button type="button" id="btnTambah" style="display: none;">Kirim</button>
+		<button type="button" id="btnEdit" style="display: none;">Edit</button>
+		<button type="button" id="btnReset">Clear</button>
+		<button type="button" id="btnCancelForm">Close Form</button>
+	</div>
+	<div id="tblNya" style="margin-top: 10px;"></div>
+</div>
+</div>
+<script>
+	// alert($("input[value='1']").removeAttr("checked"))
+	var globalKode = ""
+	$(document).ready(function () {
+		btnAll(true, false)
+		ambilDataSiswa()
+	})
+	$("input[name='nis']").on("input", function () {
+		isi = $(this).val()
+		a = isi.replace(/\D/i, "")
+		a = a.substr(0, 10)
+		$(this).val(a)
+	})
+	$("#btnForm").click(function () {
+		$(".formNya").show()
+		$("input[name='username']").focus()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function () {
+		$("#btnReset").trigger("click")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true, false)
+	})
+	$("#btnReset").click(function () {
+		btnAll(true, false)
+		$(".formNya input, textarea").val("")
+		$("input[name='jk']").prop({
+			checked: false
+		})
+		$("#lk").val("l"); $("#pr").val("p")
+	})
+
+	// __Perbatasan Wilayah__ \\
+	function refreshAll() {
+		$("#tblNya").empty()
+		ambilDataSiswa() // Jangan lupa ganti
+		$("#btnReset").trigger("click")
+		btnAll(true, false)
+	}
+	function ambilDataSiswa() {
+		$.get("siswa/ambilData", function () {
+
+		}).done(function (data) {
+			$("#tblNya").empty()
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>Username</th> <th>Password</th> <th>NIS</th> <th>Nama</th> <th>Jenis Kelamin</th> <th>Alamat</th> <th>Action</th> </thead><tbody>'
+			$("#tblNya").append(atasTable)
+			data = JSON.parse(data)
+			var no = 1
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				var username = obj.userid
+				var password = obj.password
+				var namaNya = cekLengthNya(obj.nama, no, 2)
+				var almt = cekLengthNya(obj.alamat, no, 4)
+				var isiTable = '<tr>' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + username + '</td>' +
+					'<td>' + password + '</td>' +
+					'<td>' + obj.nis + '</td>' +
+					'<td>' + namaNya + '</td>' +
+					'<td>' + (obj.jk == "l" ? "Laki-Laki" : "Perempuan") + '</td>' +
+					'<td>' + almt + '</td>' +
+					'<td>' +
+					'<button onclick="edit(' + obj.nis + ')" style="margin-right:5px;">Edit</button>' +
+					'<button onclick="hapus(' + obj.nis + ')">Hapus</button>' +
+					'</td>' +
+					'</tr>'
+				$("#tblNya table").append(isiTable)
+			}
+
+			$("#tblNya table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function cekLengthNya(strNya, tr, td) {
+		strNya = (strNya.length > 10 ? strNya.substr(0, 10) + "<div style='display:none;'>" + strNya.substr(10, strNya.length) + "</div>" + "<a href='#' onclick='readMore(" + tr + "," + td + ")'> ...</a>" : strNya)
+		return strNya
+	}
+	function readMore(trNya, tdNya) {
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "inline")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readLess(" + trNya + "," + tdNya + ")")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" Read Less")
+	}
+	function readLess(trNya, tdNya) {
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "none")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readMore(" + trNya + "," + tdNya + ")")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" ...")
+	}
+	function cekValue(isi = []) {
+		for (var x in isi) {
+			if (isi[x] == "" || isi[x] === "" || isi[x] == null || isi[x] === null || typeof (isi[x]) === undefined || typeof (isi[x]) == undefined) {
+				return false
+				break
+			}
+			// console.log(isi[x])
+		}
+		// console.log(isi)
+		return true
+	}
+	function cekNisDouble(nisNya, coba) {
+		$.post("siswa/prosesCekNisGanda", { "nis": nisNya }, function () {
+
+		}).done(function (data) {
+			coba(data)
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function cekUseridDouble(username, coba) {
+		$.post("guru/prosesCekUseridGanda", { "username": username }, function () {
+
+		}).done(function (data) {
+			coba(data)
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function hapus(idNya) {
+		$.post("siswa/prosesDelete", { "nis": idNya }, function () {
+
+		}).done(function (data) {
+			refreshAll()
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function edit(idNya) {
+		$.get("siswa/ambilDataEdit", { "nis": idNya }, function () {
+
+		}).done(function (data) {
+			data = JSON.parse(data)
+			var obj = data[0]
+			$(".formNya input[name='username']").val(obj.userid)
+			$(".formNya input[name='password']").val(obj.password)
+			$(".formNya input[name='nis']").val(obj.nis)
+			$(".formNya input[name='nama']").val(obj.nama)
+			var a = (obj.jk == "l" ? $(".formNya input[value='l']").prop("checked", "checked") : $(".formNya input[value='p']").prop("checked", "checked"));
+			$(".formNya textarea").val(obj.alamat)
+			btnAll(false, true)
+			$("#btnForm").trigger("click")
+			globalKode = obj.nis
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+
+	// __Perbatasan Wilayah__ \\
+	$("#btnTambah").click(function () {
+		var username = $(".formNya input[name='username']").val()
+		var password = $(".formNya input[name='password']").val()
+		var nis = $(".formNya input[name='nis']").val()
+		var nama = $(".formNya input[name='nama']").val()
+		var jk = $(".formNya input[name='jk']:checked").val()
+		var alamat = $(".formNya textarea").val()
+
+		if ([nis, nama, jk, alamat, username, password].indexOf("") == -1) {
+			cekUseridDouble(username, function (out1) {
+				if (out1 == "ada") {
+					alert("Pilih USERID yang lain..!!")
+				} else {
+					cekNisDouble(nis, function (out) {
+						if (out == "ada") {
+							alert("Pilih NIS yang lain..!!")
+						} else {
+							$.post("siswa/prosesTambah", { "nis": nis, "nama": nama, "jk": jk, "alamat": alamat, "username": username, "password": password }, function () {
+							}).done(function (data) {
+								refreshAll()
+							}).fail(function (xhr, msg, txt) {
+								console.log(xhr + msg + txt)
+							})
+						}
+					})
+				}
+			})
+		} else {
+			alert("Isi semua boyy...")
+			$("input[name='username']").focus()
+		}
+	})
+	$("#btnEdit").click(function () {
+		var username = $(".formNya input[name='username']").val()
+		var password = $(".formNya input[name='password']").val()
+		var nis = $(".formNya input[name='nis']").val()
+		var nama = $(".formNya input[name='nama']").val()
+		var jk = $(".formNya input[name='jk']:checked").val()
+		var alamat = $(".formNya textarea").val()
+
+		if ([nis, nama, jk, alamat, username, password].indexOf("") == -1) {
+			$.post("siswa/prosesEdit", { "nis": nis, "nama": nama, "jk": jk, "alamat": alamat, "kode": globalKode, "username": username, "password": password }, function () {
+
+			}).done(function (data) {
+				refreshAll()
+			}).fail(function (xhr, msg, txt) {
+				console.log(xhr + msg + txt)
+			})
+		} else {
+			alert("Isi semua boyy...")
+			$("input[name='username']").focus()
+		}
+	})
+
+</script>
+{% include('adminBawah.html') %}

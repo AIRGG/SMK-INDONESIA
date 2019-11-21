@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	{% set URLNya = request.path.split("/") %}
+	{% if URLNya[3] == "guru" %}
+	{% set namaAtas = "Guru" %}
+	{% elif URLNya[3] == "siswa" %}
+	{% set namaAtas = "Siswa" %}
+	{% elif URLNya[3] == "mapel" %}
+	{% set namaAtas = "Mapel" %}
+	{% elif URLNya[3] == "prodi" %}
+	{% set namaAtas = "Prodi" %}
+	{% elif URLNya[3] == "kelas" %}
+	{% set namaAtas = "Kelas" %}
+	{% elif URLNya[3] == "mapelGuru" %}
+	{% set namaAtas = "Mapel Guru" %}
+	{% elif URLNya[3] == "kelasSiswa" %}
+	{% set namaAtas = "Kelas Siswa" %}
+	{% elif URLNya[3] == "jadwal" %}
+	{% set namaAtas = "Jadwal" %}
+	{%endif%}
+	<title>Halaman {{ namaAtas }}</title>
+</head>
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='myDist/css/adminStyle.css')}}">
+{% include 'assetJSAdmin.html' %}
+<body style="display: none;">
+
+	<div class="container">
+		<div class="menuAtas">
+			<div class="listMenu">
+				<ul>
+					<li onclick="pindah('')">Home</li>
+					<li class="{% if URLNya[3] == 'guru' %}active{%endif%}" onclick="{% if URLNya[3] != 'guru' %}pindah('/guru'){%endif%}">Guru</li>
+					<li class="{% if URLNya[3] == 'siswa' %}active{%endif%}" onclick="{% if URLNya[3] != 'siswa' %}pindah('/siswa'){%endif%}">Siswa</li>
+					<li class="{% if URLNya[3] == 'mapel' %}active{%endif%}" onclick="{% if URLNya[3] != 'mapel' %}pindah('/mapel'){%endif%}">Mapel</li>
+					<li class="{% if URLNya[3] == 'prodi' %}active{%endif%}" onclick="{% if URLNya[3] != 'prodi' %}pindah('/prodi'){%endif%}">Prodi</li>
+					<li class="{% if URLNya[3] == 'kelas' %}active{%endif%}" onclick="{% if URLNya[3] != 'kelas' %}pindah('/kelas'){%endif%}">Kelas</li>
+					<li class="{% if URLNya[3] == 'mapelGuru' %}active{%endif%}" onclick="{% if URLNya[3] != 'mapelGuru' %}pindah('/mapelGuru'){%endif%}">Mapel Guru</li>
+					<li class="{% if URLNya[3] == 'kelasSiswa' %}active{%endif%}" onclick="{% if URLNya[3] != 'kelasSiswa' %}pindah('/kelasSiswa'){%endif%}">Kelas Siswa</li>
+					<li class="{% if URLNya[3] == 'jadwal' %}active{%endif%}" onclick="{% if URLNya[3] != 'jadwal' %}pindah('/jadwal'){%endif%}">Jadwal</li>
+					<li class="nama">SMK INDONESIA</li>
+					<li class="logout" onclick="pindah('../../')">Logout</li>
+				</ul>
+			</div>
+		</div>

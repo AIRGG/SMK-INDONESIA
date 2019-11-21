@@ -1,0 +1,164 @@
+{% include('adminAtas.html') %}
+<div class="konten">
+	<h2>Manage Kelas Siswa</h2>
+	<hr>
+	<label for="" style="font-weight: bold;">Kelas</label>
+	<label for="" style="font-weight: bold;margin-left: 200px;">Siswa</label>
+	<br /><br />
+	<select name="kelasSiswa" id="" style="width: 10%; display: block;"></select><br />
+	<div id="tbl1" style="display: inline-block;"></div>
+	<--->
+		<div id="tbl2" style="display: inline-block;"></div>
+		<br />
+		<br />
+		<label for="" id="lblLoading">Loading...</label>
+</div>
+</div>
+<script>
+	var globalKode = ""
+	$(document).ready(() => {
+		btnAll(true, false)
+		ambilDataKelas()
+		ambilDataSiswa() //Jangan lupa diganti
+		ambilDataKelasSiswa()
+		$("#lblLoading").hide()
+	})
+	$("#btnForm").click(function () {
+		$(".formNya").show()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function () {
+		$("#btnReset").trigger("click")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true, false)
+	})
+	$("#btnReset").click(function () {
+		btnAll(true, false)
+		var idx = 0
+		$("select").each(function () {
+			$("select[name='kelasSiswa']")[idx].selectedIndex = 0;
+			idx++
+		})
+	})
+
+	// __Perbatasan Wilayah__ \\
+	function refreshAll() {
+		$("#tblNya").empty()
+		ambilDataKelasSiswa() // Jangan lupa ganti
+		$("#btnReset").trigger("click")
+		$("#filter")[0].selectedIndex = 0
+		btnAll(true, false)
+	}
+	function cekLengthNya(strNya, tr, td) {
+		strNya = (strNya.length > 10 ? strNya.substr(0, 10) + "<div style='display:none;'>" + strNya.substr(10, strNya.length) + "</div>" + "<a href='#' onclick='readMore(" + tr + "," + td + ")'> ...</a>" : strNya)
+		return strNya
+	}
+	function ambilDataSiswa() {
+		$("#tbl2").empty()
+		$.get("kelasSiswa/ambilDataSiswa", function () {
+
+		}).done(function (data) {
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>NIS</th> <th>Nama</th> </thead><tbody>'
+			$("#tbl2").append(atasTable)
+			data = JSON.parse(data)
+			var no = 1
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				var isiTable = '<tr onclick="pindahSiswa(' + obj.nis + ')">' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + obj.nis + '</td>' +
+					'<td>' + obj.nama + '</td>' +
+					'</tr>'
+				$("#tbl2 table tbody").append(isiTable)
+			}
+
+			$("#tbl2 table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function ambilDataKelas() {
+		var sel = "select[name='kelasSiswa']"
+		$(sel).empty()
+		$.get("kelas/ambilData", function () {
+
+		}).done(function (data) {
+			$(sel).empty()
+			data = JSON.parse(data)
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				$(sel).append("<option value='" + obj.kode_kelas + "'>" + (obj.kelas + " " + obj.kode_prodi + " " + obj.ket) + "</option>")
+			}
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function ambilDataKelasSiswa() {
+		$("#tbl1").empty()
+		var kode = $("select[name='kelasSiswa']").val()
+		$.get("kelasSiswa/ambilData", { "kode": kode }, function () {
+
+		}).done(function (data) {
+			console.log(data)
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>NIS</th> <th>Nama</th> </thead><tbody>'
+			$("#tbl1").append(atasTable)
+			data = JSON.parse(data)
+			var no = 1
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				var isiTable = '<tr onclick="pindahKelasSiswa(' + obj.id_ks + ')">' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + obj.nis + '</td>' +
+					'<td>' + obj.nama + '</td>' +
+					'</tr>'
+				$("#tbl1 table tbody").append(isiTable)
+			}
+
+			$("#tbl1 table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function cekValue(isi = []) {
+		for (var x in isi) {
+			if (isi[x] == "" || isi[x] === "" || isi[x] == null || isi[x] === null || typeof (isi[x]) === undefined || typeof (isi[x]) == undefined) {
+				return false
+				break
+			}
+			// console.log(isi[x])
+		}
+		// console.log(isi)
+		return true
+	}
+
+	// __Perbatasan Wilayah__ \\
+	$("select[name='kelasSiswa']").on("change", () => {
+		ambilDataKelasSiswa()
+	})
+	function pindahSiswa(nis) {
+		var kelas = $("select[name='kelasSiswa']").val()
+		$.post("kelasSiswa/pindahSiswa", { "nis": nis, "kelas": kelas }, () => {
+		}).done((data) => {
+			ambilDataSiswa()
+			ambilDataKelasSiswa()
+		}).fail((xhr, msg, txt) => {
+			console.log(xhr.responseText + msg + txt)
+		})
+
+	}
+	function pindahKelasSiswa(id) {
+		$.post("kelasSiswa/pindahKelasSiswa", { "kode": id }, () => {
+
+		}).done((data) => {
+			ambilDataSiswa()
+			ambilDataKelasSiswa()
+		}).fail((xhr, msg, txt) => {
+			console.log(xhr.responseText + msg + txt)
+		})
+	}
+
+</script>
+{% include('adminBawah.html') %}

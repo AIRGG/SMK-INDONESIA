@@ -1,0 +1,225 @@
+{% include('adminAtas.html') %}
+
+<div class="konten">
+	<div style="width: 50%; display: inline;">
+	<h2>Manage Kelas</h2>
+	<button id="btnForm">Form</button>
+
+	<div class="formNya" style="display: none;">
+		<label for="">Kelas</label><br/>
+		<select name="kelas" id="">
+			<option value="X">X (Sepuluh)</option>
+			<option value="XI">XI (Sebelas)</option>
+			<option value="XII">XII (Dua belas)</option>
+		</select><br/><br/>
+		<label for="">Kode Prodi</label><br/>
+		<select name="kode" id=""></select><br/><br/>
+		<label for="">Keterangan</label><br/>
+		<select name="ket" id="">
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+		</select><br/><br/>
+		<button type="button" id="btnTambah" style="display: none;">Kirim</button>
+		<button type="button" id="btnEdit" style="display: none;">Edit</button>
+		<button type="button" id="btnReset">Clear</button>
+		<button type="button" id="btnCancelForm">Close Form</button>
+	</div>
+	<select name="" id="filter" style="max-width: 10%;">
+		<option value="all">All</option>
+	</select>
+	</div>
+	<div style="width: auto; display: inline; position: absolute; margin-left: 250px; top: 100px;">
+		<div id="tblNya" style="margin-top: 10px; min-height: 500px;"></div>
+	</div>
+</div>
+<script>
+	var globalKode = ""
+	$(document).ready(function(){
+		btnAll(true,false)
+		ambilDataKelas() //Jangan lupa diganti
+		ambilDataProdi()
+	})
+	$("#btnForm").click(function() {
+		$(".formNya").show()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function() {
+		$("#btnReset").trigger("click")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true,false)
+	})
+	$("#btnReset").click(function(){
+		btnAll(true,false)
+		var idx = 0
+		$("select").not(":last").each(function(){
+			$("select[name='kelas'],select[name='kode'],select[name='ket']")[idx].selectedIndex = 0;
+			idx++
+		})
+	})
+
+	// __Perbatasan Wilayah__ \\
+	function refreshAll(){
+		$("#tblNya").empty()
+		ambilDataKelas() // Jangan lupa ganti
+		$("#btnReset").trigger("click")
+		$("#filter")[0].selectedIndex = 0
+		btnAll(true,false)
+	}
+	function cekLengthNya(strNya,tr,td){
+		strNya = (strNya.length > 10 ? strNya.substr(0,10)+"<div style='display:none;'>"+strNya.substr(10, strNya.length)+"</div>"+"<a href='#' onclick='readMore("+tr+","+td+")'> ...</a>" : strNya)
+		return strNya
+	}
+	function ambilDataKelas(filter=false){
+		$.get("kelas/ambilData", function(){
+
+		}).done(function(data){
+			$("#tblNya").empty()
+			var atasTable = '<table>'+
+			'<thead> <th>No</th> <th>Nama Kelas</th> <th>Nama Prodi</th> <th>Action</th> </thead><tbody>'
+			$("#tblNya").append(atasTable)
+			data = JSON.parse(data)
+			console.log(data)
+			var no=1
+			for(var i=0; i < data.length;i++){
+				var obj = data[i]
+				if(filter != false){
+					if(obj.kode_prodi != filter){
+						continue;
+					}
+				}
+				// var namaNya = cekLengthNya(obj.kelas+" "+obj.kode_prodi+" "+obj.ket, no, 2)
+				var isiTable = '<tr>'+
+				'<td>'+(no++)+'</td>'+
+				'<td>'+(obj.kelas+" "+obj.kode_prodi+" "+obj.ket)+'</td>'+
+				'<td>'+obj.nama_prodi+'</td>'+
+				'<td>'+
+				'<button onclick="edit(\''+obj.kode_kelas+'\')" style="margin-right:5px;">Edit</button>'+
+				'<button onclick="hapus(\''+obj.kode_kelas+'\')">Hapus</button>'+
+				'</td>'+
+				'</tr>'
+				$("#tblNya table").append(isiTable)
+			}
+
+			$("#tblNya table").append('</tbody></table>')
+		}).fail(function(xhr,msg,txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function ambilDataProdi(){
+		$.get("prodi/ambilData", function(){
+
+		}).done(function(data){
+			var sel = "select[name='kode']"
+			$(sel).empty()
+			data = JSON.parse(data)
+			for(var i=0; i < data.length;i++){
+				var obj = data[i]
+				$(sel).append("<option value='"+obj.kode_prodi+"'>"+obj.nama_prodi+"</option>")
+				$("#filter").append("<option value='"+obj.kode_prodi+"'>"+obj.nama_prodi+"</option>")
+			}
+		}).fail(function(xhr,msg,txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function cekValue(isi = []){
+		for(var x in isi){
+			if(isi[x] == "" || isi[x] === "" || isi[x] == null || isi[x] === null || typeof(isi[x]) === undefined || typeof(isi[x]) == undefined){
+				return false
+				break
+			}
+			// console.log(isi[x])
+		}
+		// console.log(isi)
+		return true
+	}
+	function cekKodeDouble(kodeNya, coba){
+		$.post("kelas/prosesCekKodeGanda", {"kode": kodeNya}, function(){
+
+		}).done(function(data){
+			coba(data)
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function hapus(idNya){
+		$.post("kelas/prosesDelete", {"kode":idNya}, function(){
+
+		}).done(function(data){
+			refreshAll()
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function edit(idNya){
+		$.get("kelas/ambilDataEdit", {"kode":idNya}, function(){
+
+		}).done(function(data){
+			data = JSON.parse(data)
+			var obj = data[0]
+			$(".formNya select[name='kelas']").val(obj.kelas)
+			$(".formNya select[name='kode']").val(obj.kode_prodi)
+			$(".formNya select[name='ket']").val(obj.ket)
+			btnAll(false,true)
+			$("#btnForm").trigger("click")
+			globalKode = obj.kode_kelas
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+
+	// __Perbatasan Wilayah__ \\
+	$("#btnTambah").click(function(){
+		var kelas = $(".formNya select[name='kelas'] :selected").val()
+		var kode = $(".formNya select[name='kode'] :selected").val()
+		var ket = $(".formNya select[name='ket'] :selected").val()
+
+		if(cekValue([kode,kelas,ket]) == true){
+			cekKodeDouble(kode+","+kelas+","+ket, function(out){
+				if(out == "ada"){
+					alert("Untuk: '"+kelas+" "+kode+" "+ket+"'. Sudah Terfdaftar, Pilih yang lain!!")
+				}else{
+					$.post("kelas/prosesTambah", {"kode":kode,"kelas":kelas,"ket":ket}, function(){
+					
+					}).done(function(data){
+						refreshAll()
+					}).fail(function(xhr, msg, txt){
+						console.log(xhr+msg+txt)
+					})
+				}
+			})
+		}else{
+			alert("Isi semua boyy...")
+			$("input[name='kode']").focus()
+		}
+	})
+	$("#btnEdit").click(function(){
+		var kelas = $(".formNya select[name='kelas'] :selected").val()
+		var kode = $(".formNya select[name='kode'] :selected").val()
+		var ket = $(".formNya select[name='ket'] :selected").val()
+
+		if(cekValue([kode,kelas,ket]) == true){
+			$.post("kelas/prosesEdit", {"kode":kode,"kelas":kelas,"ket":ket,"kodeAsli":globalKode}, function(){
+
+			}).done(function(data){
+				refreshAll()
+			}).fail(function(xhr, msg, txt){
+				console.log(xhr+msg+txt)
+			})
+		}else{
+			alert("Isi semua boyy...")
+			$("input[name='kode']").focus()
+		}
+	})
+	$("#filter").on("change",function(){
+		var isi = $(this).val()
+		if(isi == "all") refreshAll();
+		else ambilDataKelas(isi);
+		$("#btnCancelForm").trigger("click")
+	})
+</script>
+
+{% include('adminBawah.html') %}

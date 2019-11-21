@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Halaman Nilai</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='myDist/css/adminStyle.css')}}">
+</head>
+
+<body style="display: none;">
+    <div class="container">
+        <div class="menuAtas">
+            <div class="listMenu">
+                <ul>
+                    {% set URLNya = request.path.split("/") %}
+                    <li onclick="pindah('')">Home</li>
+                    <li class="{% if URLNya[3] == 'nilai' %}active{%endif%}"
+                        onclick="{% if URLNya[3] != 'nilai' %}pindah('/nilai'){%endif%}">Nilai</li>
+                    <li class="{% if URLNya[3] == 'jadwal' %}active{%endif%}"
+                        onclick="{% if URLNya[3] != 'jadwal' %}pindah('/jadwal'){%endif%}">Jadwal</li>
+                    <li class="nama">SMK INDONESIA</li>
+                    <li class="logout" onclick="pindah('../../')">Logout</li>
+                </ul>
+            </div>
+        </div>
+        <div class="konten">
+            <h2>Manage Nilai</h2>
+            <button id="btnForm">Form</button>
+
+            <div class="formNya" style="display:none;">
+                <label for="">Mapel</label><br />
+                <select name="mapel" id="" style="width: 50%;">
+                    <option value="0">-- Pilih --</option>
+                    {% for k, v in dataProdi.iterrows() %}
+                    <option value="{{ v['id_mg'] }}">{{ v['nama_mapel'] }}</option>
+                    {% endfor %}
+                </select><br /><br />
+                <label for="">Kelas</label><br />
+                <select name="kelas" id="" style="width: 50%;"></select><br /><br />
+                <label for="">Siswa</label><br />
+                <select name="siswa" id="" style="width: 80%;"></select><br /><br />
+                <label for="">UH</label>
+                <input name="uh" type="text" style="width: 10%;">
+                <label for="">UTS</label>
+                <input name="uts" type="text" style="width: 10%;">
+                <label for="">UAS</label>
+                <input name="uas" type="text" style="width: 10%;">
+                <br /><br />
+                <label for="">NILAI AKHIR</label><br />
+                <input name="na" type="text" style="width: 20%;" disabled="disabled" value="0"><br /><br />
+                <button type="button" id="btnTambah" style="display: none;">Kirim</button>
+                <button type="button" id="btnEdit" style="display: none;">Edit</button>
+                <button type="button" id="btnReset">Clear</button>
+                <button type="button" id="btnCancelForm">Close Form</button>
+            </div>
+            <div style="width: auto; display: inline; position: absolute; margin-left: 350px; top: 100px;">
+                <div id="tblNya" style="margin-top: 10px; min-height: 500px;">
+                    <table>
+                        <thead>
+                            <th>No</th>
+                            <th>Nis</th>
+                            <th>Nama</th>
+                            <th>Nilai UH</th>
+                            <th>Nilai UTS</th>
+                            <th>Nilai UAS</th>
+                            <th>Nilai Akhir</th>
+                            <th>Action</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="{{url_for('static', filename='myDist/js/jquerybaru.js')}}"></script>
+
+    <script src="{{url_for('static', filename='myDist/js/jquery.gsap.min.js')}}"></script>
+    <script src="{{url_for('static', filename='myDist/js/TimelineMax.min.js')}}"></script>
+    <script src="{{url_for('static', filename='myDist/js/TweenMax.min.js')}}"></script>
+    <script>
+        function pindah(url) {
+            window.location.href = "/smkindonesia/guru" + url
+        }
+        function btnAll(tmbh = false, edt = false) {
+            if (tmbh == true) $("#btnTambah").show();
+            else $("#btnTambah").hide();
+
+            if (edt == true) $("#btnEdit").show();
+            else $("#btnEdit").hide()
+        }
+        $.ajaxSetup({
+            async: false
+        })
+        var kdtmp = ""
+        $(document).ready(function () {
+            btnAll(true, false)
+            $("body").css("display", "block")
+        })
+        $("#btnForm").click(function () {
+            $(".formNya").show()
+            $(this).hide()
+        })
+        $("#btnCancelForm").click(function () {
+            $(".formNya").hide()
+            $("#btnForm").show()
+            //$("#btnReset").trigger("click")
+            $("select[name='mapel']").val("0")
+            $("select[name='mapel']").trigger("change")
+            btnAll(true, false)
+        })
+        $("#btnReset").click(function () {
+            btnAll(true, false)
+            $("select[name='siswa']").val($("select[name='siswa'] option:first").val())
+            $("select[name='kelas']").trigger("change")
+            $("input[name='uh'],input[name='uts'],input[name='uas']").val("")
+            $("input[name='na']").val("0")
+        })
+        //== PERBATASAN WILAYAH ==\\
+        $("select[name='mapel']").on("change", function () {
+            var kode = $(this).val()
+            if (kode == "0") {
+                $("select[name='kelas'],select[name='siswa'],#tblNya table tbody").empty()
+                $("input[name='uh'],input[name='uts'],input[name='uas']").val("")
+                $("input[name='na']").val("0")
+            } else {
+                $.get("nilai/ambilDataKelas", { "kode": kode })
+                    .done(function (data) {
+                        data = JSON.parse(data)
+                        var opt = ""
+                        data.map(function (v, k) {
+                            opt += `<option value='${v["kode_kelas"]}'>${v["kelas"]} ${v["kode_prodi"]} ${v["ket"]}</option>`
+                        })
+                        $("select[name='kelas']").empty()
+                        $("select[name='kelas']").append(opt)
+                        $("select[name='kelas']").trigger("change")
+                    })
+                    .fail(function (xhr, msg, txt) {
+                        alert(xhr + msg + txt)
+                    })
+            }
+        })
+        $("select[name='kelas']").on("change", function () {
+            var kode = $(this).val()
+            $.get("nilai/ambilDataSiswa", { "kode": kode })
+                .done(function (data) {
+                    data = JSON.parse(data)
+                    var opt = ""
+                    data.map(function (v, k) {
+                        opt += `<option value='${v["nis"]}'>${v["nis"]} - ${v["nama"]}</option>`
+                    })
+                    $("select[name='siswa']").empty()
+                    $("select[name='siswa']").append(opt)
+                    $("input[name='uh']").focus()
+                    var kdKls = $("select[name='kelas']").val()
+                    getDataNilai(`${kode}-${kdKls}`)
+                })
+                .fail(function (xhr, msg, txt) {
+                    alert(xhr + msg + txt)
+                })
+        })
+        $("select[name='siswa']").on("change", function () {
+            $("input[name='uh']").focus()
+        })
+        $("input[name='uh']").on("input", function () {
+            var isi = $(this).val().replace(/\D/i, "")
+            $(this).val(isi.substr(0, 3))
+        })
+        $("input[name='uts']").on("input", function () {
+            var isi = $(this).val().replace(/\D/i, "")
+            $(this).val(isi.substr(0, 3))
+        })
+        $("input[name='uas']").on("input", function () {
+            var isi = $(this).val().replace(/\D/i, "")
+            $(this).val(isi.substr(0, 3))
+        })
+        $("input[name='uh'],input[name='uts'],input[name='uas']").on("input", function () {
+            var uh = ($("input[name='uh']").val() == "") ? 0 : $("input[name='uh']").val()
+            var uts = ($("input[name='uts']").val() == "") ? 0 : $("input[name='uts']").val()
+            var uas = ($("input[name='uas']").val() == "") ? 0 : $("input[name='uas']").val()
+            var ttl = [parseInt(uh), parseInt(uts), parseInt(uas)]
+            var sm = 0
+            $.each(ttl, function (k, v) { sm += v })
+            sm = (sm / ttl.length)
+            $("input[name='na']").val(String(sm).substr(0, 5))
+        })
+        $("#btnTambah").on("click", function () {
+            var mapel = $("select[name='mapel']").val()
+            var nis = $("select[name='siswa']").val()
+            var uh = $("input[name='uh']").val()
+            var uts = $("input[name='uts']").val()
+            var uas = $("input[name='uas']").val()
+            var na = $("input[name='na']").val()
+            if (mapel == "0") {
+                alert("Pilih Mapel DULU!!")
+            } else {
+                if ([uh, uts, uas].indexOf("") != -1) {
+                    alert("ISI NILAINYA DULU BOSSS!")
+                    $("input[name='uh']").focus()
+                } else {
+                    $.post("nilai/prosesTambahNilai", { "mapel": mapel, "nis": nis, "uh": uh, "uts": uts, "uas": uas, "na": na })
+                        .done(function (data) {
+                            $("#btnReset").trigger("click")
+                        })
+                        .fail(function (xhr, msg, txt) {
+                            alert(xhr + msg + txt)
+                        })
+                }
+            }
+        })
+        $("#btnEdit").on("click", function () {
+            var nis = $("select[name='siswa']").val()
+            var uh = $("input[name='uh']").val()
+            var uts = $("input[name='uts']").val()
+            var uas = $("input[name='uas']").val()
+            var na = $("input[name='na']").val()
+            if ([uh, uts, uas].indexOf("") != -1) {
+                alert("ISI NILAINYA DULU BOSSS!")
+                $("input[name='uh']").focus()
+            } else {
+                $.post("nilai/prosesEditNilai", { "kode": kdtmp, "nis": nis, "uh": uh, "uts": uts, "uas": uas, "na": na })
+                    .done(function (data) {
+                        $("#btnReset").trigger("click")
+                    })
+                    .fail(function (xhr, msg, txt) {
+                        alert(xhr + msg + txt)
+                    })
+            }
+        })
+        $(document).on("click", ".dlt", function () {
+            var kode = $(this).attr("val")
+            $.post("nilai/prosesDeleteNilai", { "kode": kode })
+                .done(function (data) {
+                    $("#btnReset").trigger("click")
+                })
+                .fail(function (xhr, msg, txt) {
+                    alert(xhr + msg + txt)
+                })
+        })
+        $(document).on("click", ".edt", function () {
+            var kode = $(this).attr("val")
+            btnAll(false, true)
+            $.get("nilai/getDataEditNilai", { "kode": kode })
+                .done(function (data) {
+                    data = JSON.parse(data)
+                    $("select[name='siswa']").val(data[0]["nis"])
+                    $("input[name='uh']").val(data[0]["uh"])
+                    $("input[name='uts']").val(data[0]["uts"])
+                    $("input[name='uas']").val(data[0]["uas"])
+                    $("input[name='na']").val(data[0]["na"])
+                    kdtmp = data[0]["id_nilai"]
+                })
+                .fail(function (xhr, msg, txt) {
+                    alert(xhr + msg + txt)
+                })
+        })
+        function getDataNilai(kode) {
+            $.get("nilai/ambilData", { "kode": kode })
+                .done(function (data) {
+                    data = JSON.parse(data)
+                    var opt = ""
+                    data.map((v, k) => {
+                        opt += `<tr style='text-align:center;'>
+                            <td>${k + 1}</td>
+                            <td>${v["nis"]}</td>
+                            <td>${v["nama"]}</td>
+                            <td>${v["uh"]}</td>
+                            <td>${v["uts"]}</td>
+                            <td>${v["uas"]}</td>
+                            <td>${v["na"]}</td>
+                            <td>
+                                <button class='edt' val='${v["id_nilai"]}' style="margin-right:5px;">Edit</button>
+                                <button class='dlt' val='${v["id_nilai"]}'>Hapus</button>
+                            </td>
+                        </tr>`
+                    })
+                    $("#tblNya table tbody").empty()
+                    $("#tblNya table tbody").append(opt)
+                })
+                .fail(function (xhr, msg, txt) {
+                    alert(xhr + msg + txt)
+                })
+        }
+    </script>
+</body>
+
+</html>

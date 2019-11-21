@@ -1,0 +1,202 @@
+{% include('adminAtas.html') %}
+<div class="konten">
+	<h2>Manage Guru</h2>
+	<button id="btnForm">Form</button>
+
+	<div class="formNya" style="display: none;">
+		<!-- <form action="guru/tambah" method="POST"> -->
+		<label for="">Username</label><br />
+		<input type="text" name="username"><br /><br />
+		<label for="">Password</label><br />
+		<input type="text" name="password"><br /><br />
+		<label for="">Nama</label><br />
+		<input type="text" name="nama"><br /><br />
+		<label for="">Alamat</label><br />
+		<textarea rows="3" name="alamat"></textarea><br /><br />
+		<button type="button" id="btnTambah" style="display: none;">Kirim</button>
+		<button type="button" id="btnEdit" style="display: none;">Edit</button>
+		<button type="button" id="btnReset">Clear</button>
+		<button type="button" id="btnCancelForm">Close Form</button>
+		<!-- </form> -->
+	</div>
+	<div id="tblNya" style="margin-top: 10px;"></div>
+</div>
+</div>
+
+<script>
+	var globalKode = ""
+	$(document).ready(function () {
+		ambilDataGuru()
+		btnAll(true, false)
+	})
+	function refreshAll() {
+		$("#tblNya").empty()
+		ambilDataGuru()
+		$("#btnReset").trigger("click")
+		// $("#tblNya").empty()
+		// $("#tblNya").append("Loading...")
+		// setTimeout(function(){
+		// 	$("#tblNya").empty()
+		// 	ambilDataGuru()
+		// 	$("#btnReset").trigger("click")
+		// },500)
+		btnAll(true, false)
+	}
+	function ambilDataGuru() {
+		$.get("guru/ambilData", function () {
+
+		}).done(function (data) {
+			$("#tblNya").empty()
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>Username</th> <th>Password</th> <th>Nama</th> <th>Alamat</th> <th>Action</th> </thead><tbody>'
+			$("#tblNya").append(atasTable)
+
+			var no = 1
+			data = JSON.parse(data)
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				var username = obj.userid
+				var password = obj.password
+				var namaNya = obj.nama
+				var almt = obj.alamat
+				namaNya = cekLengthNya(namaNya, no, 1)
+				almt = cekLengthNya(almt, no, 2)
+				var isiTable = '<tr>' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + username + '</td>' +
+					'<td>' + password + '</td>' +
+					'<td>' + namaNya + '</td>' +
+					'<td>' + almt + '</td>' +
+					'<td>' +
+					'<button onclick="edit(' + obj.kode_guru + ')" style="margin-right:5px;">Edit</button>' +
+					'<button onclick="hapus(' + obj.kode_guru + ')">Hapus</button>' +
+					'</td>' +
+					'</tr>'
+				$("#tblNya table").append(isiTable)
+			}
+
+			$("#tblNya table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function hapus(idNya) {
+		$.post("guru/prosesDelete", { "kode": idNya }, function () {
+
+		}).done(function (data) {
+			refreshAll()
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function edit(idNya) {
+		$.get("guru/ambilDataEdit", { "kode": idNya }, function () {
+
+		}).done(function (data) {
+			console.log(data)
+			data = JSON.parse(data)
+			$(".formNya input[name='username']").val(data[0].userid)
+			$(".formNya input[name='password']").val(data[0].password)
+			$(".formNya input[name='nama']").val(data[0].nama)
+			$(".formNya textarea").val(data[0].alamat)
+			btnAll(false, true)
+			$("#btnForm").trigger("click")
+			globalKode = data[0].kode_guru
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function cekLengthNya(strNya, tr, td) {
+		strNya = (strNya.length > 10 ? strNya.substr(0, 10) + "<div style='display:none;'>" + strNya.substr(10, strNya.length) + "</div>" + "<a href='#' onclick='readMore(" + tr + "," + td + ")'> ...</a>" : strNya)
+		return strNya
+	}
+	function readMore(trNya, tdNya) {
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "inline")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readLess(" + trNya + "," + tdNya + ")")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" Read Less")
+	}
+	function readLess(trNya, tdNya) {
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "none")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readMore(" + trNya + "," + tdNya + ")")
+		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" ...")
+	}
+	function cekValue(isi = []) {
+		for (var x in isi) {
+			if (isi[x] == "") {
+				break;
+				return false
+			}
+		}
+		return true
+	}
+	function cekUseridDouble(username, coba) {
+		$.post("guru/prosesCekUseridGanda", { "username": username }, function () {
+
+		}).done(function (data) {
+			coba(data)
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	$("#btnForm").click(function () {
+		$(".formNya").show()
+		$("input[name='username']").focus()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function () {
+		$(".formNya input, textarea").val("")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true, false)
+	})
+	$("#btnReset").click(function () {
+		btnAll(true, false)
+		$(".formNya input, textarea").val("")
+	})
+	$("#btnTambah").click(function () {
+		var username = ($(".formNya input[name='username']").val() == "") ? "" : $(".formNya input[name='username']").val()
+		var password = ($(".formNya input[name='password']").val() == "") ? "" : $(".formNya input[name='password']").val()
+		var nama = ($(".formNya input[name='nama']").val() == "") ? "" : $(".formNya input[name='nama']").val()
+		var alamat = ($(".formNya textarea").val() == "") ? "" : $(".formNya textarea").val()
+
+		if ([nama, alamat, username, password].indexOf("") == -1) {
+			cekUseridDouble(username, function (out) {
+				if (out == "ada") {
+					alert("Pilih Userid yang lain..!!")
+				} else {
+					$.post("guru/prosesTambah", { "nama": nama, "alamat": alamat, "password": password, "username": username }, function () {
+
+					}).done(function (data) {
+						refreshAll()
+					}).fail(function (xhr, msg, txt) {
+						console.log(xhr + msg + txt)
+					})
+				}
+			})
+		} else {
+			alert("Isi semua boyy...")
+			$("input[name='nama']").focus()
+		}
+	})
+	$("#btnEdit").click(function () {
+		var username = ($(".formNya input[name='username']").val() == "") ? "" : $(".formNya input[name='username']").val()
+		var password = ($(".formNya input[name='password']").val() == "") ? "" : $(".formNya input[name='password']").val()
+		var nama = $(".formNya input[name='nama']").val()
+		var alamat = $(".formNya textarea").val()
+
+		if ([nama, alamat, username, password].indexOf("") == -1) {
+			$.post("guru/prosesEdit", { "nama": nama, "alamat": alamat, "kode": globalKode, "password": password, "username": username }, function () {
+
+			}).done(function (data) {
+				refreshAll()
+			}).fail(function (xhr, msg, txt) {
+				console.log(xhr + msg + txt)
+			})
+		} else {
+			alert("Isi semua boyy...")
+			$("input[name='nama']").focus()
+		}
+	})
+</script>
+
+{% include('adminBawah.html') %}

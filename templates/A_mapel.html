@@ -1,0 +1,179 @@
+{% include('adminAtas.html') %}
+<div class="konten">
+	<h2>Manage Mata Pelajaran (Mapel)</h2>
+	<button id="btnForm">Form</button>
+
+	<div class="formNya" style="display: none;">
+		<label for="">Kode Mapel</label><br/>
+		<input type="text" name="kode" style="width: 30%;"><br/><br/>
+		<label for="">Nama Mapel</label><br/>
+		<input type="text" name="nama" style="width: 70%;"><br/><br/>
+		<button type="button" id="btnTambah" style="display: none;">Kirim</button>
+		<button type="button" id="btnEdit" style="display: none;">Edit</button>
+		<button type="button" id="btnReset">Clear</button>
+		<button type="button" id="btnCancelForm">Close Form</button>
+	</div>
+	<div id="tblNya" style="margin-top: 10px;"></div>
+	</div>
+</div>
+
+<script>
+	var globalKode = ""
+	$(document).ready(function(){
+		btnAll(true,false)
+		ambilDataMapel()
+	})
+	$("input[name='kode']").on("input", function(){
+		isi = $(this).val()
+		var a = isi.substr(0,5)
+		$(this).val(a)
+	})
+	$("input[name='nama']").on("input", function(){
+		isi = $(this).val()
+		var a = isi.substr(0,30)
+		$(this).val(a)
+	})
+	$("#btnForm").click(function() {
+		$(".formNya").show()
+		$("input[name='kode']").focus()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function() {
+		$("#btnReset").trigger("click")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true,false)
+	})
+	$("#btnReset").click(function(){
+		btnAll(true,false)
+		$(".formNya input").val("")
+	})
+
+	// __Perbatasan Wilayah__ \\
+	function refreshAll(){
+		$("#tblNya").empty()
+		ambilDataMapel() // Jangan lupa ganti
+		$("#btnReset").trigger("click")
+		btnAll(true,false)
+	}
+	function cekLengthNya(strNya,tr,td){
+		strNya = (strNya.length > 10 ? strNya.substr(0,10)+"<div style='display:none;'>"+strNya.substr(10, strNya.length)+"</div>"+"<a href='#' onclick='readMore("+tr+","+td+")'> ...</a>" : strNya)
+		return strNya
+	}
+	function ambilDataMapel(){
+		$.get("mapel/ambilData", function(){
+
+		}).done(function(data){
+			$("#tblNya").empty()
+			var atasTable = '<table>'+
+			'<thead> <th>No</th> <th>Kode Mapel</th> <th>Nama Mapel</th> <th>Action</th> </thead><tbody>'
+			$("#tblNya").append(atasTable)
+			data = JSON.parse(data)
+			var no=1
+			for(var i=0; i < data.length;i++){
+				var obj = data[i]
+				// var namaNya = cekLengthNya(obj.nama_mapel, no, 2)
+				var isiTable = '<tr>'+
+				'<td>'+(no++)+'</td>'+
+				'<td>'+obj.kode_mapel+'</td>'+
+				'<td>'+obj.nama_mapel+'</td>'+
+				'<td>'+
+				'<button onclick="edit(\''+obj.kode_mapel+'\')" style="margin-right:5px;">Edit</button>'+
+				'<button onclick="hapus(\''+obj.kode_mapel+'\')">Hapus</button>'+
+				'</td>'+
+				'</tr>'
+				$("#tblNya table").append(isiTable)
+			}
+
+			$("#tblNya table").append('</tbody></table>')
+		}).fail(function(xhr,msg,txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function cekValue(isi = []){
+		for(var x in isi){
+			if(isi[x] == "" || isi[x] === "" || isi[x] == null || isi[x] === null || typeof(isi[x]) === undefined || typeof(isi[x]) == undefined){
+				return false
+				break
+			}
+			// console.log(isi[x])
+		}
+		// console.log(isi)
+		return true
+	}
+	function cekKodeDouble(kodeNya, coba){
+		$.post("mapel/prosesCekKodeGanda", {"kode": kodeNya}, function(){
+
+		}).done(function(data){
+			coba(data)
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function hapus(idNya){
+		$.post("mapel/prosesDelete", {"kode":idNya}, function(){
+
+		}).done(function(data){
+			refreshAll()
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+	function edit(idNya){
+		$.get("mapel/ambilDataEdit", {"kode":idNya}, function(){
+
+		}).done(function(data){
+			data = JSON.parse(data)
+			var obj = data[0]
+			$(".formNya input[name='kode']").val(obj.kode_mapel)
+			$(".formNya input[name='nama']").val(obj.nama_mapel)
+			btnAll(false,true)
+			$("#btnForm").trigger("click")
+			globalKode = obj.kode_mapel
+		}).fail(function(xhr, msg, txt){
+			console.log(xhr+msg+txt)
+		})
+	}
+
+	// __Perbatasan Wilayah__ \\
+	$("#btnTambah").click(function(){
+		var kode = $(".formNya input[name='kode']").val()
+		var nama = $(".formNya input[name='nama']").val()
+
+		if(cekValue([kode,nama]) == true){
+			cekKodeDouble(kode, function(out){
+				if(out == "ada"){
+					alert("Pilih KODE yang lain..!!")
+				}else{
+					$.post("mapel/prosesTambah", {"kode":kode,"nama":nama}, function(){
+					}).done(function(data){
+						refreshAll()
+					}).fail(function(xhr, msg, txt){
+						console.log(xhr+msg+txt)
+					})
+				}
+			})
+		}else{
+			alert("Isi semua boyy...")
+			$("input[name='kode']").focus()
+		}
+	})
+	$("#btnEdit").click(function(){
+		var kode = $(".formNya input[name='kode']").val()
+		var nama = $(".formNya input[name='nama']").val()
+
+		if(cekValue([kode,nama]) == true){
+			$.post("mapel/prosesEdit", {"kode":kode,"nama":nama,"kodeAsli":globalKode}, function(){
+			
+			}).done(function(data){
+				refreshAll()
+			}).fail(function(xhr, msg, txt){
+				console.log(xhr+msg+txt)
+			})
+		}else{
+			alert("Isi semua boyy...")
+			$("input[name='kode']").focus()
+		}
+	})
+</script>
+{% include('adminBawah.html') %}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Siswa Dashboard</title>
+</head>
+<style>
+	body {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		font-family: "roboto";
+		/*background: linear-gradient(to top, #09203f 0%, #537895 100%);*/
+		height: auto;
+		background-repeat: no-repeat;
+		background-color: #85BEE4;
+	}
+
+	button {
+		border: none;
+		padding: 10px;
+		border-radius: 5px;
+		background-image: linear-gradient(-20deg, #616161 0%, #9bc5c3 100%);
+		color: #ffff;
+		font-weight: bold;
+	}
+
+	button:hover {
+		opacity: 0.6;
+		cursor: pointer;
+		box-shadow: 3px 3px 5px #00f2fe;
+	}
+
+	.container {
+		height: 1000px;
+	}
+
+	.support1 {
+		position: absolute;
+		right: 50px;
+		top: 80px;
+	}
+
+	.support1 img {
+		width: 480px;
+		height: auto;
+	}
+
+	.judul {
+		position: absolute;
+		top: 40px;
+		left: 60px;
+		font-size: 30px;
+		font-weight: bolder;
+		color: #fefefe;
+	}
+
+	.garisJudul {
+		height: 1px;
+		/*background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);*/
+		/*background: linear-gradient(to right, #fffc00, #ffffff);*/
+		/*background: linear-gradient(to right, #00c6ff, #0072ff);*/
+		background: linear-gradient(to right, #7474bf, #348ac7);
+	}
+
+	.isiMenu ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		width: auto;
+		white-space: nowrap;
+	}
+
+	.isiMenu ul {
+		position: absolute;
+		top: 120px;
+		left: 70px;
+	}
+
+	.isiMenu ul li {
+		text-align: center;
+		padding: 40px;
+		margin-bottom: 15px;
+		background-color: red;
+		border-radius: 20px;
+		font-size: 20px;
+		color: white;
+		/*box-shadow: 3px 3px 5px whitesmoke;*/
+	}
+
+	.list2 {
+		position: absolute;
+		left: 150px;
+	}
+
+	ul li {
+		background-color: red;
+	}
+
+	.list1 ul li:nth-child(odd) {
+		/*background-image: linear-gradient(to top, #cc208e 0%, #6713d2 100%);*/
+		background: linear-gradient(to right, #2980b9, #2c3e50);
+	}
+
+	.list1 ul li:nth-child(even) {
+		/*background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);*/
+		/*background: linear-gradient(to right, #f85032, #e73827);*/
+		background: linear-gradient(to right, #ffb347, #ffcc33);
+	}
+
+	ul li {
+		background-color: red;
+	}
+
+	.list2 ul li:nth-child(odd) {
+		background: linear-gradient(to right, #ffb347, #ffcc33);
+	}
+
+	.list2 ul li:nth-child(even) {
+		background: linear-gradient(to right, #2980b9, #2c3e50);
+	}
+
+	ul li:hover {
+		/*opacity: 0.8;*/
+		cursor: pointer;
+		box-shadow: 3px 3px 5px #ffffff;
+	}
+
+	.logout {
+		position: absolute;
+		right: 50px;
+		bottom: 30px;
+	}
+
+	.logout button {
+		border: none;
+		background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
+		color: white;
+		font-weight: bolder;
+	}
+</style>
+
+<body style="display: none;">
+	<div class="container">
+		<div class="support1">
+			<img src="{{ url_for('static', filename='img/siswaSupport.png') }}" alt="">
+		</div>
+		<div class="judul">
+			Hi, Welcome to Dashboard
+			<div class="garisJudul"></div>
+		</div>
+		<div class="isiMenu">
+			<div class="list1">
+				<ul>
+					<li onclick="pindah('/jadwal')">Jadwal</li>
+					<li onclick="pindah('/kelas')">Kelas</li>
+				</ul>
+				<!-- Mapel Guru, Kelas Siswa, Jadwal -->
+			</div>
+			<div class="list2">
+				<ul>
+					<li onclick="pindah('/nilai')">Nilai</li>
+				</ul>
+			</div>
+		</div>
+		<div class="logout">
+			<button onclick="pindah('logout',false)">Logout</button>
+		</div>
+	</div>
+
+	{% include 'assetJSAdmin.html' %}
+	<script>
+		$(document).ready(function () {
+			$("body").css("display", "block")
+			var tl = new TimelineMax({ delay: 0.5 })
+			tl.from(".support1 img", 1, { x: 20, opacity: 0 }).from(".judul", 1, { x: -20, opacity: 0 }).from(".garisJudul", 1, { width: 0, display: "none" }).staggerFrom(".isiMenu ul li", 1, { y: 5, opacity: 0 }, 0.5).from(".logout button", 1, { y: 1, opacity: 0 })
+
+			function support1() {
+				tl1 = new TimelineMax({ repeat: -1 })
+				tl1.to(".support1 img", 2.5, { x: -40, delay: 2 }).to(".support1 img", 2.5, { x: 0, delay: 2 })
+			}
+		})
+
+		function pindah(url, sts = true) {
+			if (sts) return window.location.href = "/smkindonesia/siswa" + url;
+			else return window.location.href = url;
+		}
+	</script>
+</body>
+
+</html>

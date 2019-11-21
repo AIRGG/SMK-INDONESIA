@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Halaman Login</title>
+</head>
+<style>
+	body {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		font-family: "roboto";
+		color: #333;
+		/*background-color: whitesmoke;*/
+	}
+
+	#support1 {
+		position: absolute;
+		right: 0px;
+		z-index: -9999;
+	}
+
+	#support2 {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#support2 svg {
+		height: 100px;
+	}
+
+	.judul {
+		width: 33%;
+		padding: 20px 0 0 40px;
+		margin: 0;
+	}
+
+	.textNya {
+		font-size: 25px;
+		font-weight: bold;
+	}
+
+	.conGarJud {
+		width: 97%;
+	}
+
+	.garisJudul {
+		margin-top: 5px;
+		border-bottom: 2px solid #333;
+	}
+
+	.kotak {
+		margin: 50px auto;
+		padding: 10px;
+		width: 300px;
+		height: auto;
+		/*border: 1px solid grey;*/
+		box-shadow: 2px 5px 10px solid grey;
+	}
+
+	.headLogin {
+		font-size: 40px;
+		margin: 0px auto;
+		text-align: center;
+		margin-bottom: 50px;
+		padding-bottom: 10px;
+		width: 50%;
+		/*border-bottom: 5px solid #55E628;*/
+		/*background: linear-gradient(90deg, #3F2B96 0%, #A8C0FF 100%);*/
+	}
+
+	.garisLogin {
+		margin-top: 10px;
+		border-bottom: 3.5px solid #333;
+	}
+
+	.formNya {
+		width: 95%;
+	}
+
+	.formNya input {
+		width: 100%;
+		height: 30px;
+		padding: 1px;
+		border: none;
+		border-bottom: 0.5px solid #4C96F1;
+		margin-bottom: 10px;
+	}
+
+	.formNya input:focus {
+		box-shadow: none;
+		outline: none;
+		border-bottom: 1px solid #4C96F1;
+		box-shadow: 0px 2px 4px lightgrey;
+		transition: 0.2s;
+	}
+
+	.formNya label {
+		font-size: 20px;
+	}
+
+	button {
+		border: none;
+		padding: 10px;
+		border-radius: 5px;
+		/*background: linear-gradient(90deg, #1CB5E0 0%, #000851 100%);*/
+		/*background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);*/
+		/*background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+		background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+		color: #ffff;
+		font-weight: bold;
+	}
+
+	button:hover {
+		opacity: 0.8;
+		cursor: pointer;
+	}
+
+	.formNya button {
+		width: 100%;
+		margin-top: 20px;
+	}
+
+	.supportKiri {
+		display: inline-block;
+		margin-right: 50px;
+		margin-left: 20px;
+	}
+
+	.supportKiri img {
+		width: 400px;
+		height: auto;
+		/*transition: 0.2s;*/
+	}
+
+	.supportKiri img:hover {
+		/*transform: scale(1.08);
+		transition: 0.2s;*/
+	}
+
+	.support3 {
+		position: absolute;
+		bottom: 15px;
+		right: 30px;
+	}
+</style>
+
+<body style="display: none;">
+	<div class="container">
+		<div id="support1">
+			<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+			<!-- Creator: CorelDRAW 2018 (64-Bit) -->
+			<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="15.388cm" height="14.02cm" version="1.1"
+				style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+				viewBox="0 0 15.388 14.02" xmlns:xlink="http://www.w3.org/1999/xlink">
+				<defs>
+					<style type="text/css">
+						<![CDATA[
+						#fil6 {
+							fill: none
+						}
+
+						#fil5 {
+							fill: #21E8FF
+						}
+
+						#fil4 {
+							fill: #29B129
+						}
+
+						#fil1 {
+							fill: #37D6FE
+						}
+
+						#fil2 {
+							fill: #3F77D8
+						}
+
+						#fil0 {
+							fill: url(#id0)
+						}
+
+						#fil3 {
+							fill: url(#id1)
+						}
+						]]>
+					</style>
+					<linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="8.98614" y1="7.27713" x2="6.40186"
+						y2="-0.43005">
+						<stop offset="0" style="stop-opacity:1; stop-color:#B358BA" />
+						<stop offset="0.54902" style="stop-opacity:1; stop-color:#D565BA" />
+						<stop offset="1" style="stop-opacity:1; stop-color:#F872BB" />
+					</linearGradient>
+					<linearGradient id="id1" gradientUnits="userSpaceOnUse" x1="9.76814" y1="9.35474" x2="12.72998"
+						y2="8.06491">
+						<stop offset="0" style="stop-opacity:1; stop-color:#F5A123" />
+						<stop offset="0.34902" style="stop-opacity:1; stop-color:#F7B32A" />
+						<stop offset="1" style="stop-opacity:1; stop-color:#F9C531" />
+					</linearGradient>
+				</defs>
+				<g id="Layer_x0020_1">
+					<metadata id="CorelCorpID_0Corel-Layer" />
+					<g id="_2895538577520">
+						<path id="fil0"
+							d="M-0.00011 -0.00009l15.38822 0 0 6.84726c-2.06619,-1.85967 -5.04796,-2.65673 -8.91195,-2.94786 -4.85771,-0.37271 -5.70196,-2.7363 -6.47627,-3.8994z" />
+						<path id="fil1"
+							d="M15.38811 3.09781l0 9.99942c-2.19702,-0.60144 -3.81178,-2.61185 -3.81178,-4.99972 0,-2.38786 1.61476,-4.39826 3.81178,-4.9997z" />
+						<path id="fil2"
+							d="M12.52314 5.11051c1.08955,0.4507 2.05885,1.01111 2.86497,1.73666l0 -3.74936c-1.16461,0.31881 -2.18137,1.05571 -2.86497,2.0127z" />
+						<circle id="fil3" cx="11.24906" cy="8.70983" r="1.61525" />
+						<path id="fil4"
+							d="M12.86431 8.70983c0,-0.74896 -0.50974,-1.37886 -1.20122,-1.5617 -0.05698,0.30778 -0.08676,0.6251 -0.08676,0.94938 0,0.72631 0.14939,1.41771 0.41913,2.04515 0.51636,-0.26954 0.86885,-0.81002 0.86885,-1.43283z" />
+						<circle id="fil5" cx="11.37574" cy="13.43943" r="0.58065" />
+					</g>
+					<rect id="fil6" x="-0.00011" y="-0.00009" width="15.38822" height="14.02016" />
+				</g>
+			</svg>
+		</div>
+
+		<div class="judul">
+			<div class="textNya">Selamat Datang di SMK INDONESIA</div>
+			<div class="conGarJud">
+				<div class="garisJudul"></div>
+			</div>
+		</div>
+
+		<div class="supportKiri">
+			<img src="{{ url_for('static', filename='img/support3.png') }}" alt="">
+		</div>
+
+		<div class="kotak" style="display: inline-block;">
+			<div class="headLogin">Login <div class="garisLogin"></div>
+			</div>
+			<div class="formNya">
+				{% with messages = get_flashed_messages() %}
+				{% if messages %}
+				<label for="" style="font-size: 15px;color:crimson">Gagal Login Username or Password Salah</label>
+				<br /><br />
+				{%endif%}
+				{%endwith%}
+				<form action="login" method="POST">
+					<label for="">Username:</label><br />
+					<input type="text" name="username" autofocus="true"
+						value="{{ get_flashed_messages()[0] }}"><br /><br />
+					<label for="">Password:</label><br />
+					<input type="password" name="password"><br /><br />
+					<button type="submit">Login</button>
+					<!-- <button type="submit" onclick="return document.location.href='admin'">Login</button> -->
+				</form>
+			</div>
+		</div>
+
+
+		<div id="support2">
+			<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+			<!-- Creator: CorelDRAW 2018 (64-Bit) -->
+			<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="6.778cm" height="3.16298cm"
+				version="1.1"
+				style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+				viewBox="0 0 6.778 3.16298" xmlns:xlink="http://www.w3.org/1999/xlink">
+				<defs>
+					<style type="text/css">
+						<![CDATA[
+						.fil5 {
+							fill: none
+						}
+
+						.fil3 {
+							fill: #37D6FE
+						}
+
+						.fil1 {
+							fill: #3F77D8
+						}
+
+						.fil4 {
+							fill: #9685F5
+						}
+
+						.fil0 {
+							fill: #FECD28
+						}
+
+						.fil2 {
+							fill: #FECD28
+						}
+						]]>
+					</style>
+				</defs>
+				<g id="Layer_x0020_1">
+					<metadata id="CorelCorpID_0Corel-Layer" />
+					<g id="_2895409270016">
+						<path class="fil0"
+							d="M2.36444 3.16276l4.4134 0c-0.96248,-1.08256 -3.23997,-0.85997 -4.4134,0z" />
+						<circle class="fil1" cx="0.61933" cy="0.58086" r="0.58065" />
+						<circle class="fil2" cx="0.55314" cy="1.86305" r="0.34931" />
+						<circle class="fil3" cx="0.19772" cy="2.75173" r="0.19755" />
+						<circle class="fil4" cx="1.4253" cy="2.43481" r="0.15358" />
+					</g>
+					<rect class="fil5" x="0.00018" y="0.00026" width="6.77767" height="3.16254" />
+				</g>
+			</svg>
+		</div>
+		<div class="support3">
+			Copyright &copy; DTAX 2019. All Right Reserved
+		</div>
+	</div>
+
+
+	<script src="{{url_for('static', filename='myDist/js/jquerybaru.js')}}"></script>
+
+	<script src="{{url_for('static', filename='myDist/js/jquery.gsap.min.js')}}"></script>
+	<script src="{{url_for('static', filename='myDist/js/TimelineMax.min.js')}}"></script>
+	<script src="{{url_for('static', filename='myDist/js/TweenMax.min.js')}}"></script>
+
+	<script>
+		$(document).ready(function () {
+			$("body").css("display", "block")
+			var tl = new TimelineMax({ delay: 0.5, onComplete: support })
+			// tl.fromTo("#orang,#badan,#badan1", 1, {opacity:0}, {opacity:1, display:"block"})
+
+			tl.fromTo("#support1,#support2", 1, { scaleX: 1.5, opacity: 0, display: "none" }, { display: "block", scaleX: 1, opacity: 1 }).fromTo(".supportKiri", 1.5, { x: -100, opacity: 0 }, { x: 1, opacity: 1 }).from('.garisJudul', 0.5, { width: 0, xPercent: 1, yPercent: 0 }).from('.garisLogin', 0.5, { scaleX: 0, transformOrigin: "center", ease: Power2.easeOut }).from("div.support3", 1, { y: 20, opacity: 0 })
+
+
+			function support() {
+				tl1 = new TimelineMax({ repeat: -1 })
+				tl1.to("#support2 circle:eq(1)", 1, { rotation: -150 }).to("#support2 circle:eq(1)", 0.5, { rotation: 0 })
+
+				tl2 = new TimelineMax({ repeat: -1 })
+				tl2.to("#support1 circle:last", 0.3, { y: -2 }).to("#support1 circle:last", 0.5, { rotation: 100 }).to("#support1 circle:last", 0.5, { rotation: 0 }).to("#support1 circle:last", 1, { y: 0, duration: 2.5, ease: Bounce.easeOut })
+
+				tl3 = new TimelineMax({ repeat: -1 })
+				tl3.to("#support2 circle:eq(3)", 1, { y: -2 }).to("#support2 circle:eq(3)", 1, { y: 0, ease: Bounce.easeOut })
+			}
+
+			// tl.from("#gbrNya", 0.4, {scaleX:0}).staggerFromTo("#garis path", 0.5, {scale:1.5}, {display:"block",scale:1}, 0.2).staggerFrom('#bercak path', 0.2, {duration: 0.5, ease: Back.easeOut.config(1.7), y: -500 }, 0.5)
+			// tl.to("#orang", { duration: 1, ease: Elastic.easeOut.config(1, 1), x: "400%" });
+			// tl.from('#orang,#badan,#badan1', 0.5, {scaleX: 0, transformOrigin: "center", ease: Power2.easeOut})
+			// tl.fromTo($('#orang,#badan,#badan1') , 1, {opacity:0}, {opacity:1,display:'block'})
+
+		})
+
+	// $("#gbrNya").hide()
+	// $("#support2").hide()
+	// $("#orang,#badan,#badan1").hide()
+	// $("#garis path").hide()
+
+	</script>
+</body>
+
+</html>

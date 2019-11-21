@@ -1,0 +1,188 @@
+{% include('adminAtas.html') %}
+<div class="konten">
+	<h2>Manage Jadwal</h2>
+	<label for="" style="font-weight: bold;">Kelas</label>
+	<label for="" style="font-weight: bold;margin-left: 200px;">Mapel</label>
+	<br /><br />
+	<select name="kelasSiswa" id="" style="width: 10%; display: block;"></select><br />
+	<div id="tbl1" style="display: inline-block;"></div>
+	<--->
+		<div id="tbl2" style="display: inline-block;"></div>
+		<br />
+		<br />
+		<!-- <label for=""  id="lblLoading">Loading...</label> -->
+</div>
+</div>
+
+<script>
+	var globalKode = ""
+	$(document).ready(() => {
+		btnAll(true, false)
+		ambilDataKelas()
+		ambilDataMapelGuru() //Jangan lupa diganti
+		ambilDataJadwal()
+		$("#lblLoading").hide()
+	})
+	$("#btnForm").click(function () {
+		$(".formNya").show()
+		$(this).hide()
+	})
+	$("#btnCancelForm").click(function () {
+		$("#btnReset").trigger("click")
+		$(".formNya").hide()
+		$("#btnForm").show()
+		btnAll(true, false)
+	})
+	$("#btnReset").click(function () {
+		btnAll(true, false)
+		var idx = 0
+		$("select").each(function () {
+			$("select[name='kelasSiswa']")[idx].selectedIndex = 0;
+			idx++
+		})
+	})
+
+	// __Perbatasan Wilayah__ \\
+	function refreshAll() {
+		$("#tblNya").empty()
+		ambilDataMapelGuru() // Jangan lupa ganti
+		$("#btnReset").trigger("click")
+		$("#filter")[0].selectedIndex = 0
+		btnAll(true, false)
+	}
+	function cekLengthNya(strNya, tr, td) {
+		strNya = (strNya.length > 10 ? strNya.substr(0, 10) + "<div style='display:none;'>" + strNya.substr(10, strNya.length) + "</div>" + "<a href='#' onclick='readMore(" + tr + "," + td + ")'> ...</a>" : strNya)
+		return strNya
+	}
+	function ambilDataMapelGuru() {
+		$.get("jadwal/ambilDataMG", function () {
+
+		}).done(function (data) {
+			$("#tbl2").empty()
+			data = JSON.parse(data)
+			var dtJdwl;
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>Nama Mapel</th> <th>Nama Guru</th> </thead><tbody>'
+			$("#tbl2").append(atasTable)
+			var kode = $("select[name='kelasSiswa']").val()
+			$.get("jadwal/ambilData", { "kode": kode })
+				.done(function (dataJdwl) {
+					dtJdwl = JSON.parse(dataJdwl)
+				})
+			console.log("Dari JDWL")
+			console.log(data.length)
+			var dtbaru = []
+			var popN = []
+			for (var i = 0; i < data.length; i++) {
+				for (var j = 0; j < dtJdwl.length; j++) {
+					var obj = data[i], obj1 = dtJdwl[j]
+					if (obj.id_mg == obj1.id_mg) {
+						popN.push(i)
+					}
+				}
+			}
+			for (var i = popN.length - 1; i >= 0; i--) {
+				data.splice(popN[i], 1)
+			}
+			var no = 1
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				// var namaNya = cekLengthNya(obj.kelas+" "+obj.kode_prodi+" "+obj.ket, no, 2)
+				var isiTable = '<tr onclick="pindahMapelGuru(' + obj.id_mg + ')">' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + obj.nama_mapel + '</td>' +
+					'<td>' + obj.nama + '</td>' +
+					'</tr>'
+				$("#tbl2 table tbody").append(isiTable)
+			}
+
+			$("#tbl2 table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function ambilDataKelas() {
+		var sel = "select[name='kelasSiswa']"
+		$(sel).empty()
+		$.get("kelas/ambilData", function () {
+
+		}).done(function (data) {
+			$(sel).empty()
+			data = JSON.parse(data)
+			console.log(data)
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				$(sel).append("<option value='" + obj.kode_kelas + "'>" + (obj.kelas + " " + obj.kode_prodi + " " + obj.ket) + "</option>")
+			}
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function ambilDataJadwal() {
+		$("#tbl1").empty()
+		var kode = $("select[name='kelasSiswa']").val()
+		$.get("jadwal/ambilData", { "kode": kode }, function () {
+
+		}).done(function (data) {
+			console.log(data)
+			data = JSON.parse(data)
+			var atasTable = '<table>' +
+				'<thead> <th>No</th> <th>Nama Mapel</th> <th>Nama Guru</th> </thead><tbody>'
+			$("#tbl1").append(atasTable)
+
+			var no = 1
+			for (var i = 0; i < data.length; i++) {
+				var obj = data[i]
+				var isiTable = '<tr onclick="pindahJadwal(' + obj.id_jdwl + ')">' +
+					'<td>' + (no++) + '</td>' +
+					'<td>' + obj.nama_mapel + '</td>' +
+					'<td>' + obj.nama + '</td>' +
+					'</tr>'
+				$("#tbl1 table tbody").append(isiTable)
+			}
+
+			$("#tbl1 table").append('</tbody></table>')
+		}).fail(function (xhr, msg, txt) {
+			console.log(xhr + msg + txt)
+		})
+	}
+	function cekValue(isi = []) {
+		for (var x in isi) {
+			if (isi[x] == "" || isi[x] === "" || isi[x] == null || isi[x] === null || typeof (isi[x]) === undefined || typeof (isi[x]) == undefined) {
+				return false
+				break
+			}
+			// console.log(isi[x])
+		}
+		// console.log(isi)
+		return true
+	}
+
+	// __Perbatasan Wilayah__ \\
+	$("select[name='kelasSiswa']").on("change", () => {
+		ambilDataJadwal()
+		ambilDataMapelGuru()
+	})
+	function pindahMapelGuru(nis) {
+		var kelas = $("select[name='kelasSiswa']").val()
+		$.post("jadwal/pindahMapelGuru", { "kdmg": nis, "kelas": kelas }, () => {
+		}).done((data) => {
+			ambilDataJadwal()
+			ambilDataMapelGuru()
+		}).fail((xhr, msg, txt) => {
+			console.log(xhr.responseText + msg + txt)
+		})
+
+	}
+	function pindahJadwal(id) {
+		$.post("jadwal/pindahJadwal", { "kode": id }, () => {
+
+		}).done((data) => {
+			ambilDataJadwal()
+			ambilDataMapelGuru()
+		}).fail((xhr, msg, txt) => {
+			console.log(xhr.responseText + msg + txt)
+		})
+	}
+</script>
+{% include('adminBawah.html') %}
