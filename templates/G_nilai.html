@@ -26,6 +26,7 @@
             </div>
         </div>
         <div class="konten">
+            <label for="">Hi, <b>{{dataGuru["nama"]|safe}}</b></label>
             <h2>Manage Nilai</h2>
             <button id="btnForm">Form</button>
 
@@ -154,7 +155,7 @@
                     $("select[name='siswa']").empty()
                     $("select[name='siswa']").append(opt)
                     $("input[name='uh']").focus()
-                    var kdKls = $("select[name='kelas']").val()
+                    var kdKls = $("select[name='mapel']").val()
                     getDataNilai(`${kode}-${kdKls}`)
                 })
                 .fail(function (xhr, msg, txt) {

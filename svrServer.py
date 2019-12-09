@@ -2,6 +2,7 @@
 import json
 from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_restful import Resource, Api
+from gevent.pywsgi import WSGIServer
 
 #  __Import MyLib__ #
 from Lib import Database
@@ -10,6 +11,14 @@ app = Flask(__name__)
 db = Database()
 app.secret_key = "rahasia"
 api = Api(app)
+app.debug=True
+
+def startServer():
+    # app.run(host="127.0.0.1", port="3001", debug=True)
+	print("Starting Server...")
+	print("url pattern: /smkindonesia")
+	http = WSGIServer(('0.0.0.0', 3001), app.wsgi_app)
+	http.serve_forever()
 
 @app.route('/', methods=["GET"])
 def index():
@@ -22,12 +31,28 @@ def index2():
 @app.route('/smkindonesia/<string:path>', methods=["GET"])
 def arah(path):
 	Rtr = "Upsss... Mau Kemana BoyyyPERTAMA..."
-	if path == "admin":
-		Rtr = render_template("admin.html")
-	if path == "guru":
-		Rtr = render_template("guru.html")
-	if path == "siswa":
-		Rtr = render_template("siswa.html")
+	try:
+		lvl = session["level"]
+		if lvl == "1":
+			if path == "admin":
+				Rtr = render_template("admin.html")
+		if lvl == "2":
+			if path == "guru":
+				Rtr = render_template("guru.html")
+		if lvl == "3":
+			if path == "siswa":
+				Rtr = render_template("siswa.html")
+	except KeyError as ke:
+		print("BELUM LOGIN Boyy!")
+		print(session)
+		return redirect("/smkindonesia")
+	except Exception as ex:
+		import traceback
+		tb = traceback.format_exc()
+		print(tb)
+		print("<--- Something Error --->")
+		print(ex)
+		return redirect("/smkindonesia")
 
 	if path == "logout":
 		session.clear()
@@ -37,54 +62,101 @@ def arah(path):
 @app.route('/smkindonesia/<string:path>/<string:where>', methods=["GET"])
 def arahKe(path, where):
 	Rtr = "Upsss... Mau Kemana BoyyyKEDUA..."
-	if path == "admin":
-		if where == "guru":
-			Rtr = render_template("A_guru.html")
-		if where == "siswa":
-			Rtr = render_template("A_siswa.html")
-		if where == "mapel":
-			Rtr = render_template("A_mapel.html")
-		if where == "prodi":
-			Rtr = render_template("A_prodi.html")
-		if where == "kelas":
-			Rtr = render_template("A_kelas.html")
-		if where == "mapelGuru":
-			Rtr = render_template("A_mapelGuru.html")
-		if where == "kelasSiswa":
-			Rtr = render_template("A_kelasSiswa.html")
-		if where == "jadwal":
-			Rtr = render_template("A_jadwal.html")
-	if path == "siswa":
-		if where == "jadwal":
-			sql = "SELECT * FROM kelas_siswa NATURAL JOIN jadwal NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE nis=%s"
-			df_jadwal = db.getData(sql, [str(session["nis"])], df=True)
-			sql = "SELECT nama FROM siswa WHERE nis=%s"
-			dtNama = db.getData(sql, [str(session["nis"])])
-			Rtr = render_template("S_jadwal.html", dataJadwal=df_jadwal,nama=json.loads(dtNama)[0]["nama"])
-		if where == "nilai":
-			sql = "SELECT * FROM kelas_siswa NATURAL JOIN nilai NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE nis=%s"
-			df_nilai = db.getData(sql, [str(session["nis"])], df=True)
-			sql = "SELECT nama FROM siswa WHERE nis=%s"
-			dtNama = db.getData(sql, [str(session["nis"])])
-			Rtr = render_template("S_nilai.html", dataNilai=df_nilai,nama=json.loads(dtNama)[0]["nama"])
-		if where == "kelas":
-			sql = "SELECT kode_kelas FROM kelas_siswa WHERE nis=%s"
-			df_kdkls = db.getData(sql, [str(session["nis"])], df=True)
-			if len(df_kdkls.index) == 0:
-				return render_template("S_kelas.html", dataKelas="kosong", sts="kosong")
-			sql = "SELECT * FROM kelas_siswa NATURAL JOIN siswa NATURAL JOIN kelas NATURAL JOIN prodi WHERE kode_kelas=%s"
-			df_kelas = db.getData(sql, [str(df_kdkls["kode_kelas"].iloc[0])], df=True)
-			Rtr = render_template("S_kelas.html", dataKelas=df_kelas, sts="ada")
-	if path == "guru":
-		if where == "nilai":
-			sql = "SELECT * FROM mapel_guru NATURAL JOIN mapel WHERE kode_guru=%s"
-			df_prodi = db.getData(sql, [str(session["kode"])], df=True)
-			Rtr = render_template("G_nilai.html", dataProdi=df_prodi)
-		if where == "jadwal":
-			sql = "SELECT * FROM jadwal NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE kode_guru=%s"
-			df_jadwal = db.getData(sql, [str(session["kode"])], df=True)
-			Rtr = render_template("G_jadwal.html", dataJadwal=df_jadwal)
+	try:
+		lvl = session["level"]
+
+		""" ROUTING ADMIN """
+		if lvl == "1":
+			if path == "admin":
+				if where == "guru":
+					Rtr = render_template("A_guru.html")
+				if where == "siswa":
+					Rtr = render_template("A_siswa.html")
+				if where == "mapel":
+					Rtr = render_template("A_mapel.html")
+				if where == "prodi":
+					Rtr = render_template("A_prodi.html")
+				if where == "kelas":
+					Rtr = render_template("A_kelas.html")
+				if where == "mapelGuru":
+					Rtr = render_template("A_mapelGuru.html")
+				if where == "kelasSiswa":
+					Rtr = render_template("A_kelasSiswa.html")
+				if where == "jadwal":
+					Rtr = render_template("A_jadwal.html")
 		
+		""" ROUTING GURU """
+		if lvl == "2":
+			if path == "guru":
+				sql = "SELECT * FROM guru NATURAL JOIN mapel_guru NATURAL JOIN jadwal NATURAL JOIN mapel NATURAL JOIN kelas NATURAL JOIN prodi WHERE kode_guru=%s"
+				df_guru = db.getData(sql, [str(session["kode"])], True)
+				nmguru = df_guru["nama"].iloc[0]
+				kls = df_guru["kelas"].iloc[0]
+				kdprd = df_guru["kode_prodi"].iloc[0]
+				ket = df_guru["ket"].iloc[0]
+				nmprodi = df_guru["nama_prodi"].iloc[0]
+				dtGuru = {
+					"nama": nmguru,
+					"kdkls": f"{kls} {kdprd} {ket}",
+					"kdprd": f"{kls} {nmprodi} {ket}"
+				}
+				if where == "nilai":
+					sql = "SELECT * FROM mapel_guru NATURAL JOIN mapel WHERE kode_guru=%s"
+					df_prodi = db.getData(sql, [str(session["kode"])], df=True)
+					Rtr = render_template("G_nilai.html", dataProdi=df_prodi, dataGuru=dtGuru)
+				if where == "jadwal":
+					sql = "SELECT * FROM jadwal NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE kode_guru=%s"
+					df_jadwal = db.getData(sql, [str(session["kode"])], df=True)
+					Rtr = render_template(
+						"G_jadwal.html", dataJadwal=df_jadwal, dataGuru=dtGuru)
+		
+		""" ROUTING SISWA """
+		if lvl == "3":
+			if path == "siswa":
+				sql = "SELECT * FROM siswa  NATURAL JOIN userprofile  NATURAL JOIN kelas_siswa  NATURAL JOIN kelas  NATURAL JOIN prodi  WHERE nis=%s"
+				df_siswa = db.getData(sql, stmt=[str(session["nis"])], df=True)
+				nmsiswa = df_siswa["nama"].iloc[0]
+				nis = df_siswa["nis"].iloc[0]
+				kls = df_siswa["kelas"].iloc[0]
+				kdprd = df_siswa["kode_prodi"].iloc[0]
+				ket = df_siswa["ket"].iloc[0]
+				nmprodi = df_siswa["nama_prodi"].iloc[0]
+				dtsiswa = {
+					"nama": nmsiswa,
+					"nis": nis,
+					"kelas": kls,
+					"kdkls": f"{kls} {kdprd} {ket}",
+					"kdprd": f"{kls} {nmprodi} {ket}"
+				}
+				if where == "jadwal":
+					sql = "SELECT * FROM kelas_siswa NATURAL JOIN jadwal NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE nis=%s"
+					df_jadwal = db.getData(sql, [str(session["nis"])], df=True)
+					Rtr = render_template(
+						"S_jadwal.html", dataJadwal=df_jadwal, dataSiswa=dtsiswa)
+				if where == "nilai":
+					sql = "SELECT * FROM kelas_siswa NATURAL JOIN nilai NATURAL JOIN mapel_guru NATURAL JOIN guru NATURAL JOIN kelas NATURAL JOIN mapel WHERE nis=%s"
+					df_nilai = db.getData(sql, [str(session["nis"])], df=True)
+					Rtr = render_template("S_nilai.html", dataNilai=df_nilai, dataSiswa=dtsiswa)
+				if where == "kelas":
+					sql = "SELECT kode_kelas FROM kelas_siswa WHERE nis=%s"
+					df_kdkls = db.getData(sql, [str(session["nis"])], df=True)
+					if len(df_kdkls.index) == 0:
+						return render_template("S_kelas.html", dataKelas="kosong", sts="kosong")
+					sql = "SELECT * FROM kelas_siswa NATURAL JOIN siswa NATURAL JOIN kelas NATURAL JOIN prodi WHERE kode_kelas=%s"
+					df_kelas = db.getData(sql, [str(df_kdkls["kode_kelas"].iloc[0])], df=True)
+					Rtr = render_template("S_kelas.html", dataKelas=df_kelas,
+										sts="ada", dataSiswa=dtsiswa)
+	except KeyError as ke:
+		print("BELUM LOGIN Boyy!")
+		return redirect("/smkindonesia")
+	except Exception as ex:
+		import traceback
+		tb = traceback.format_exc()
+		print(tb)
+		print("<--- Something Error --->")
+		print(ex)
+		return redirect("/smkindonesia")
+
 	return Rtr
 
 @app.route('/smkindonesia/<string:path>/<string:where>/<string:which>', methods=["GET","POST"])
@@ -96,8 +168,8 @@ def prosesSesuatu(path, where, which):
 			if where == "nilai":
 				if which == "ambilData":
 					kode = request.args["kode"].split("-")
-					sql = "SELECT * FROM nilai NATURAL JOIN mapel_guru NATURAL JOIN siswa NATURAL JOIN kelas_siswa NATURAL JOIN kelas NATURAL JOIN prodi WHERE kode_kelas=%s AND id_mg=%s"
-					isi = [str(kode[0]), str(kode[1])]
+					sql = "SELECT * FROM nilai NATURAL JOIN mapel_guru NATURAL JOIN siswa NATURAL JOIN kelas_siswa NATURAL JOIN kelas NATURAL JOIN prodi WHERE kode_kelas=%s AND id_mg=%s AND kode_guru=%s"
+					isi = [str(kode[0]), str(kode[1]), str(session["kode"])]
 					dtJSN = db.getData(sql, isi)
 					return dtJSN
 				if which == "getDataEditNilai":
@@ -236,41 +308,10 @@ def prosesSesuatu(path, where, which):
 						print(e)
 				if which == "ambilDataMG":
 					try:
-						# Rtr = db.getData("SELECT * FROM mapel_guru NATURAL JOIN guru NATURAL JOIN mapel WHERE id_mg NOT IN (SELECT id_mg FROM jadwal)")
 						Rtr = db.getData("SELECT * FROM mapel_guru NATURAL JOIN guru NATURAL JOIN mapel")
 					except Exception as e:
 						print(e)
-				# if which == "ambilDataEdit":
-				# 	kode = request.args["kode"]
-				# 	sql = "SELECT * FROM mapel_guru NATURAL JOIN mapel NATURAL JOIN guru WHERE id_mg=%s"
-				# 	isi = (str(kode))
-				# 	try:
-				# 		data = db.getData(sql, isi)
-				# 		Rtr = db.toJSON(data)
-				# 	except Exception as e:
-				# 		print(e)
-				# if which == "ambilDataEdit":
-				# 	kode = request.args["kode"]
-				# 	sql = "SELECT * FROM mapel WHERE kode_mapel=%s"
-				# 	isi = (str(kode))
-				# 	try:
-				# 		data = db.getData(sql, isi)
-				# 		dt = {"data":[]}
-				# 		for x in data:
-				# 			dt["data"].append(x)
-				# 		Rtr = dt
-				# 	except Exception as e:
-				# 		print(e)
-
-	# __PERBATASN WILAYAH__ #
-			# username = request.form["username"]
-			# password = request.form["password"]
-			# sql = "SELECT * FROM userprofile WHERE username=%s AND password=%s"
-			# param = [username, password]
-			# try:
-			# 	Rtr = db.getData(sql, param)
-			# except Exception as e:
-			# 	print("ERROR DI LOGIN", e)
+				
 	if request.method == "POST":
 		if path == "guru":
 			if where == "nilai":
@@ -532,15 +573,13 @@ def prosesSesuatu(path, where, which):
 			if where == "kelas":
 				if which == "prosesCekKodeGanda":
 					dt = request.form["kode"].split(",")
-					print(dt)
+					#print(dt)
 					kode = dt[0]
 					kelas = dt[1]
 					ket = dt[2]
 					sql = "SELECT * FROM kelas WHERE kode_prodi=%s AND kelas=%s AND ket=%s"
 					isi = [str(kode),str(kelas),str(ket)]
 					try:
-						# data = db.getData(sql, isi)
-						# Rtr = "ada" if len(data) == 1 else "kosong"
 						data = db.getData(sql, isi, True)
 						Rtr = "ada" if not len(data.index) == 0 else "kosong"
 					except Exception as e:
@@ -593,8 +632,8 @@ def prosesSesuatu(path, where, which):
 					sql = "SELECT * FROM mapel_guru WHERE kode_mapel=%s AND kode_guru=%s"
 					isi = [str(kodeM),str(kodeG)]
 					try:
-						data = db.getData(sql, isi)
-						Rtr = "ada" if len(data) == 1 else "kosong"
+						data = db.getData(sql, isi, True)
+						Rtr = "ada" if not len(data.index) == 0 else "kosong"
 					except Exception as e:
 						print(e)
 						Rtr = "Upsss"
@@ -679,36 +718,9 @@ def prosesSesuatu(path, where, which):
 					except Exception as e:
 						print(e)
 						Rtr = "Upsss"
-			# if where == "guru":
-			# 	if which == "prosesTambah":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesEdit":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesDelete":
-			# 		Rtr = "Upsss"
-			# if where == "guru":
-			# 	if which == "prosesTambah":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesEdit":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesDelete":
-			# 		Rtr = "Upsss"
-			# if where == "guru":
-			# 	if which == "prosesTambah":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesEdit":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesDelete":
-			# 		Rtr = "Upsss"
-			# if where == "guru":
-			# 	if which == "prosesTambah":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesEdit":
-			# 		Rtr = "Upsss"
-			# 	if which == "prosesDelete":
-			# 		Rtr = "Upsss"
-
 	return Rtr
+
+
 @app.route('/smkindonesia/<string:path>', methods=["POST"])
 def prosesLogin(path):
 	Rtr = "Upsss... Mau Kemana BoyyyKEEMPAT..."
@@ -749,8 +761,5 @@ def prosesLogin(path):
 
 
 #===>  SERVER START <===#
-def startServer():
-    app.run(host="127.0.0.1", port="3001", debug=True)
-
 if __name__=='__main__':
 	startServer()

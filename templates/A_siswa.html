@@ -7,7 +7,9 @@
 		<label for="">Username</label><br />
 		<input type="text" name="username"><br /><br />
 		<label for="">Password</label><br />
-		<input type="text" name="password"><br /><br />
+		<input type="text" name="password" style="width: 70%;">
+		<button id="btnRand">Rand</button>
+		<br /><br />
 		<label for="">NIS</label><br />
 		<input type="text" name="nis" style="width: 25%;"><br /><br />
 		<label for="">Nama</label><br />
@@ -26,7 +28,10 @@
 		<button type="button" id="btnReset">Clear</button>
 		<button type="button" id="btnCancelForm">Close Form</button>
 	</div>
-	<div id="tblNya" style="margin-top: 10px;"></div>
+	<div style="width: auto; display: inline; position: absolute; margin-left: 350px; top: 100px;">
+		<div id="tblNya" style="margin-top: 10px; min-height: 500px;"></div>
+	</div>
+	<!-- <div id="tblNya" style="margin-top: 10px;"></div> -->
 </div>
 </div>
 <script>
@@ -83,8 +88,10 @@
 				var obj = data[i]
 				var username = obj.userid
 				var password = obj.password
-				var namaNya = cekLengthNya(obj.nama, no, 2)
-				var almt = cekLengthNya(obj.alamat, no, 4)
+				var namaNya = cekLengthNya(obj.nama, no, 3)
+				var almt = cekLengthNya(obj.alamat, no, 6)
+				//namaNya = obj.nama
+				//almt = obj.alamat
 				var isiTable = '<tr>' +
 					'<td>' + (no++) + '</td>' +
 					'<td>' + username + '</td>' +
@@ -111,14 +118,15 @@
 		return strNya
 	}
 	function readMore(trNya, tdNya) {
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "inline")
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readLess(" + trNya + "," + tdNya + ")")
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" Read Less")
+		//alert($("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").text())
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "inline")
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readLess(" + trNya + "," + tdNya + ")")
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" Read Less")
 	}
 	function readLess(trNya, tdNya) {
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "none")
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readMore(" + trNya + "," + tdNya + ")")
-		$("#tblNya tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" ...")
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("div").css("display", "none")
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").attr("onclick", "readMore(" + trNya + "," + tdNya + ")")
+		$("#tblNya table tr:eq(" + trNya + ") td:eq(" + tdNya + ")").find("a").text(" ...")
 	}
 	function cekValue(isi = []) {
 		for (var x in isi) {
@@ -231,6 +239,10 @@
 			alert("Isi semua boyy...")
 			$("input[name='username']").focus()
 		}
+	})
+	$("#btnRand").on("click", function () {
+		var isi = Math.random().toString(36).substr(2, 6);
+		$(".formNya input[name='password']").val(isi)
 	})
 
 </script>

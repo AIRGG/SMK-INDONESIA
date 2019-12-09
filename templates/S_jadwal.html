@@ -30,14 +30,12 @@
         </div>
 
         <div class="konten">
+            <label>Hi, <b>{{dataSiswa["nama"]|safe}}</b></label><br />
+            <label>Kelas: <b>{{dataSiswa["kdkls"]|safe}}</b></label>
             <div id="tblNya" style="margin-top: 10px;">
                 <table>
                     <thead>
                         <th>No</th>
-                        <th>NIS</th>
-                        <th>Nama Siswa</th>
-                        <th>Kelas</th>
-                        <th> </th>
                         <th>Nama Guru</th>
                         <th>Nama Mapel</th>
                     </thead>
@@ -45,10 +43,6 @@
                         {% for k, v in dataJadwal.iterrows() %}
                         <tr style="text-align: center;">
                             <td>{{k+1}}</td>
-                            <td>{{v["nis"]}}</td>
-                            <td>{{nama|safe}}</td>
-                            <td>{{v["kelas"]}} {{ v["kode_prodi"] }} {{ v["ket"] }}</td>
-                            <td style="width: 50px;"></td>
                             <td>{{v["nama"]}}</td>
                             <td>{{v["nama_mapel"]}}</td>
                         </tr>

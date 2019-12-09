@@ -28,13 +28,12 @@
         </div>
 
         <div class="konten">
+            <label for="">Hi, <b>{{dataGuru["nama"]|safe}}</b></label>
             <h2>Manage Jadwal</h2>
-
             <div id="tblNya" style="margin-top: 10px;">
                 <table>
                     <thead>
                         <th>No</th>
-                        <th>Nama</th>
                         <th>Nama Mapel</th>
                         <th>Kelas</th>
                     </thead>
@@ -42,8 +41,7 @@
                         {% for k, v in dataJadwal.iterrows() %}
                         <tr>
                             <td>{{k+1}}</td>
-                            <td>{{v["nama"]}}</td>
-                            <td>{{v["nama_mapel"]}}</td>
+                            <td>{{v["nama_mapel"]}} ({{ v["kode_mapel"] }})</td>
                             <td>{{v["kelas"]}} {{ v["kode_prodi"] }} {{ v["ket"] }}</td>
                         </tr>
                         {% endfor %}

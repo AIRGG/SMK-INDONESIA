@@ -19,7 +19,10 @@
 		<button type="button" id="btnCancelForm">Close Form</button>
 		<!-- </form> -->
 	</div>
-	<div id="tblNya" style="margin-top: 10px;"></div>
+	<div style="width: auto; display: inline; position: absolute; margin-left: 350px; top: 100px;">
+		<div id="tblNya" style="margin-top: 10px; min-height: 500px;"></div>
+	</div>
+	<!-- <div id="tblNya" style="margin-top: 10px;"></div> -->
 </div>
 </div>
 
@@ -59,8 +62,8 @@
 				var password = obj.password
 				var namaNya = obj.nama
 				var almt = obj.alamat
-				namaNya = cekLengthNya(namaNya, no, 1)
-				almt = cekLengthNya(almt, no, 2)
+				namaNya = cekLengthNya(namaNya, no, 3)
+				almt = cekLengthNya(almt, no, 4)
 				var isiTable = '<tr>' +
 					'<td>' + (no++) + '</td>' +
 					'<td>' + username + '</td>' +
